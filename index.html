@@ -24,7 +24,7 @@
         async function update() {
             try {
                 // It looks for the app on your PC at port 9863
-                const r = await fetch('http://localhost:9863/api/v1/song');
+                const r = await fetch('http://127.0.0.1:9863/api/v1/song')
                 const d = await r.json();
                 if (d) {
                     document.getElementById('title').innerText = d.title;
