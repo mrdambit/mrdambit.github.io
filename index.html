@@ -2,41 +2,88 @@
 <html>
 <head>
     <style>
-        /* This part makes the widget look good for your stream */
-        body { background: transparent; color: white; font-family: sans-serif; overflow: hidden; }
-        #widget { display: flex; align-items: center; background: rgba(0,0,0,0.8); border-left: 5px solid #53fc18; padding: 10px; border-radius: 8px; width: fit-content; }
-        #cover { width: 60px; height: 60px; border-radius: 4px; margin-right: 12px; }
-        #info { max-width: 200px; }
-        #title { font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #artist { font-size: 14px; color: #aaa; }
+        /* Branded for your Kick stream persona */
+        body { 
+            background: transparent; 
+            color: white; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0;
+            padding: 10px;
+            overflow: hidden; 
+        }
+        #widget { 
+            display: flex; 
+            align-items: center; 
+            background: rgba(0, 0, 0, 0.85); 
+            border-left: 6px solid #53fc18; /* Kick Green */
+            padding: 12px; 
+            border-radius: 10px; 
+            width: fit-content;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        #cover { 
+            width: 65px; 
+            height: 65px; 
+            border-radius: 6px; 
+            margin-right: 15px; 
+            background-color: #222;
+        }
+        #info { 
+            max-width: 250px; 
+        }
+        #title { 
+            font-weight: bold; 
+            font-size: 18px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            margin-bottom: 4px;
+        }
+        #artist { 
+            font-size: 14px; 
+            color: #bdc3c7; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
     <div id="widget">
-        <img id="cover" src="" alt="">
+        <img id="cover" src="https://via.placeholder.com/65?text=..." alt="Cover">
         <div id="info">
-            <div id="title">Waiting...</div>
-            <div id="artist">Start YouTube Music</div>
+            <div id="title">Waiting for Music...</div>
+            <div id="artist">Start YouTube Music App</div>
         </div>
     </div>
+
     <script>
-        /* This part connects the widget to your YouTube Music App on Nobara */
-        async function update() {
+        async function updateMusic() {
             try {
-                // It looks for the app on your PC at port 9863
-                const r = await fetch('http://127.0.0.1:9863/api/v1/song')
-                const d = await r.json();
-                if (d) {
-                    document.getElementById('title').innerText = d.title;
-                    document.getElementById('artist').innerText = d.artist;
-                    document.getElementById('cover').src = d.albumArt;
+                // Using the direct IP address for better stability on Linux
+                const response = await fetch('http://127.0.0.1:9863/api/v1/song');
+                
+                if (response.status === 401) {
+                    document.getElementById('title').innerText = "Authorize App";
+                    document.getElementById('artist').innerText = "Check Music App window";
+                    return;
                 }
-            } catch (e) {
-                // If the app is closed, it just stays quiet
+
+                const data = await response.json();
+                if (data && data.title) {
+                    document.getElementById('title').innerText = data.title;
+                    document.getElementById('artist').innerText = data.artist;
+                    document.getElementById('cover').src = data.albumArt;
+                }
+            } catch (err) {
+                // Keep current state if app is closed or connection fails
+                console.log("Connection searching...");
             }
         }
-        // It checks for a new song every 2 seconds
-        setInterval(update, 2000);
+
+        // Checks for song updates every 2 seconds
+        setInterval(updateMusic, 2000);
+        updateMusic(); // Run once immediately on load
     </script>
 </body>
 </html>
