@@ -1,70 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <style>
-        body {
-            background: transparent;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            overflow: hidden;
-        }
-        #widget {
-            display: flex;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.8);
-            border-left: 5px solid #53fc18; /* Kick Green */
-            padding: 10px;
-            border-radius: 8px;
-            width: fit-content;
-        }
-        #cover {
-            width: 50px;
-            height: 50px;
-            border-radius: 4px;
-            margin-right: 12px;
-        }
-        #info {
-            max-width: 250px;
-        }
-        #title {
-            font-weight: bold;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        #artist {
-            font-size: 12px;
-            color: #aaa;
-        }
+        /* This part makes the widget look good for your stream */
+        body { background: transparent; color: white; font-family: sans-serif; overflow: hidden; }
+        #widget { display: flex; align-items: center; background: rgba(0,0,0,0.8); border-left: 5px solid #53fc18; padding: 10px; border-radius: 8px; width: fit-content; }
+        #cover { width: 60px; height: 60px; border-radius: 4px; margin-right: 12px; }
+        #info { max-width: 200px; }
+        #title { font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #artist { font-size: 14px; color: #aaa; }
     </style>
 </head>
 <body>
     <div id="widget">
-        <img id="cover" src="https://via.placeholder.com/50" alt="Cover">
+        <img id="cover" src="" alt="">
         <div id="info">
-            <div id="title">Not Playing</div>
-            <div id="artist">YouTube Music</div>
+            <div id="title">Waiting...</div>
+            <div id="artist">Start YouTube Music</div>
         </div>
     </div>
-
     <script>
-        async function updateMusic() {
+        /* This part connects the widget to your YouTube Music App on Nobara */
+        async function update() {
             try {
-                const response = await fetch('http://localhost:9863/api/v1/song');
-                const data = await response.json();
-                
-                if (data) {
-                    document.getElementById('title').innerText = data.title;
-                    document.getElementById('artist').innerText = data.artist;
-                    document.getElementById('cover').src = data.albumArt;
+                // It looks for the app on your PC at port 9863
+                const r = await fetch('http://localhost:9863/api/v1/song');
+                const d = await r.json();
+                if (d) {
+                    document.getElementById('title').innerText = d.title;
+                    document.getElementById('artist').innerText = d.artist;
+                    document.getElementById('cover').src = d.albumArt;
                 }
-            } catch (err) {
-                console.log("Waiting for music app...");
+            } catch (e) {
+                // If the app is closed, it just stays quiet
             }
         }
-        setInterval(updateMusic, 2000); // Checks for new song every 2 seconds
+        // It checks for a new song every 2 seconds
+        setInterval(update, 2000);
     </script>
 </body>
 </html>
